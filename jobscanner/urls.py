@@ -8,7 +8,7 @@ urlpatterns = [
     path("profile/<int:pk>", profile, name="profile"),
     # TODO
     path("dashboard/", dashboard, name="dashboard"),
-    path("dashboard/<int:pk>", detailed_dashboard, name="detailed_dashboard"),
+    path("dashboard/<uuid:pk>", detailed_dashboard, name="detailed_dashboard"),
     path("upload/freelancer/", upload_freelancers, name="upload_freelancer"),
     path("upload/recrutier/", upload_recrutiers, name="upload_recrutier"),
 ]
