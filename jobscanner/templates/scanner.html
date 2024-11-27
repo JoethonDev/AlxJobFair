@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    #reader {
+        width: 100%;
+        max-width: 500px;
+        margin: auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <h1>QR Code Scanner</h1>
+    <div id="reader"></div>
+    <div id="result">
+        <p>Scanned QR Code: <span id="scanned-result">None</span></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            decodedText = decodedText.trim()
+            console.log(`Code scanned: ${decodedText}`);
+            document.getElementById('scanned-result').textContent = decodedText;
+            // Redirect to the decoded URL
+            // console.log(decodedText)
+            window.location.href = decodedText;  // Assumes decodedText is a valid URL
+        };
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // Start the camera
+        html5QrCode.start(
+            { facingMode: "environment" }, // Use back camera
+            config,
+            qrCodeSuccessCallback
+        ).catch(err => {
+            console.error("Unable to start the QR scanner.", err);
+        });
+    </script>
+{% endblock %}
