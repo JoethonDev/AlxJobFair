@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'jobfair.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'alxfusion_jobfair',
+        'USER': 'alxfusion',
+        'PASSWORD': 'alxJobFair2024!',
+        'HOST': 'postgresql-alxfusion.alwaysdata.net',
+        'PORT': '5432'
     }
 }
 
