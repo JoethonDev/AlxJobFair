@@ -310,9 +310,9 @@ def download_leads(request):
     return redirect(reverse("home"))
 
 def download_attendees(request):
-    if "is_authenticated" in request.session:
+    if "recrutier_pk" in request.session:
         new_wb = openpyxl.Workbook()
-        recrutier = Recrutier.objects.get(pk=request['recrutier_pk'])
+        recrutier = Recrutier.objects.get(pk=request.session['recrutier_pk'])
         scan_logs = recrutier.scanned_logs.all()
         new_sheet = new_wb.active
         headers = ["Name", "Email", "Phone", "ALX Track", "Comment"]
