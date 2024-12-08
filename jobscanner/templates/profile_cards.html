@@ -13,6 +13,11 @@
         transition: 0.3s ease;
     }
 
+    .container{
+        align-items: normal;
+    }
+
+
 </style>
 {% endblock %}
 
@@ -25,11 +30,11 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ scanlog.freelancer.name }}</h5>
+                    <h5 class="card-title">{{ scanlog.attendee.name }}</h5>
                     <p class="card-text">
-                        <strong>Email:</strong> {{ scanlog.freelancer.email }}<br>
-                        <strong>Track:</strong> {{ scanlog.freelancer.track }}<br>
-                        <strong>Job Interest:</strong> {{ scanlog.freelancer.job_interest }}<br>
+                        <strong>Email:</strong> {{ scanlog.attendee.email }}<br>
+                        <strong>ALX Track:</strong> {{ scanlog.attendee.track }}<br>
+                        <strong>Job Interest:</strong> {{ scanlog.attendee.job_interest }}<br>
                         <strong>Comment:</strong> {{ scanlog.comment }}
                     </p>
                 </div>

@@ -7,12 +7,12 @@
         background-color: #f8f9fa;
     }
     .profile-container {
-        max-width: 400px;
+        width: 400px;
         background: white;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin: auto;
+        margin: 3rem auto;
     }
 
     form {
@@ -31,13 +31,10 @@
             <strong>Email:</strong> <span id="email">{{ profile.email }}</span>
         </div>
         <div class="mb-3">
-            <strong>Location:</strong> <span id="location">{{ profile.location }}</span>
-        </div>
-        <div class="mb-3">
             <strong>Job Interest:</strong> <span id="job_interest">{{ profile.job_interest }}</span>
         </div>
         <div class="mb-3">
-            <strong>Graduated From:</strong> <span id="graduated_from">{{ profile.track }}</span>
+            <strong>ALX Track:</strong> <span id="graduated_from">{{ profile.track }}</span>
         </div>
         <div class="mb-3">
             <strong>Phone Number:</strong> <span id="phone_number">{{ profile.phone_number }}</span>
@@ -53,4 +50,14 @@
         </div>
         <button type="submit" class="btn btn-primary">Comment</button>
     </form>
+
+    <script>
+        document.getElementsByTagName("form")[0].addEventListener("submit", (e) => {
+            let comment = document.getElementById("comment").value
+            if (!comment){
+                e.preventDefault()
+                return
+            }
+        })
+    </script>
 {% endblock %}

@@ -1,5 +1,21 @@
 {% extends 'base.html' %}
 
+{% block style %}
+<style>
+    .container{
+        height: calc(100vh - 56.8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto !important;
+    }
+
+    .form {
+        width: 400px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <form method="post">
         {% csrf_token %}

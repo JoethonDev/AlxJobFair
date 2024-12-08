@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.http import HttpResponse
-from jobscanner.models import Recrutier, Freelancer, ScanLog
+from jobscanner.models import Recrutier, Attendee, ScanLog
 
 from io import BytesIO
 import qrcode
@@ -19,7 +19,7 @@ def get_hostname(request):
     return f"{request.scheme}://{request.get_host()}"
 
 
-def qr_generator(host_name: str, freelancer: Freelancer):
+def qr_generator(host_name: str, freelancer: Attendee):
     url = f"{host_name}/profile/{freelancer.pk}"
     qr = qrcode.make(url)
     buffer = BytesIO()
@@ -59,9 +59,9 @@ def index(request):
 # Profile Display [Display profile | Back Home]
 def profile(request, pk):
     if "is_authenticated" in request.session:
-        freelancer_profile = get_object_or_404(Freelancer, pk=pk)
+        freelancer_profile = get_object_or_404(Attendee, pk=pk)
         recrutier = get_object_or_404(Recrutier, pk=request.session['recrutier_pk'])
-        _, created = ScanLog.objects.get_or_create(freelancer=freelancer_profile, recrutier=recrutier)
+        scanlog, created = ScanLog.objects.get_or_create(attendee=freelancer_profile, recrutier=recrutier)
         if created:
             freelancer_profile.visits += 1
             recrutier.scanned_counts += 1
@@ -70,18 +70,24 @@ def profile(request, pk):
 
         return render(request, "profile.html", {
             "profile" : freelancer_profile,
-            'comment' : _.comment
+            'comment' : scanlog.comment
         })
     
     return redirect(reverse("home"))
 
 def comment(request, pk):
    if "is_authenticated" in request.session:
-        freelancer_profile = get_object_or_404(Freelancer, pk=pk)
+        freelancer_profile = get_object_or_404(Attendee, pk=pk)
         recrutier = get_object_or_404(Recrutier, pk=request.session['recrutier_pk'])
-        scan_log, _ = ScanLog.objects.get_or_create(freelancer=freelancer_profile, recrutier=recrutier)
+        scan_log, _ = ScanLog.objects.get_or_create(attendee=freelancer_profile, recrutier=recrutier)
         scan_log.comment = request.POST.get("comment", "")
         scan_log.save()
+
+        if _:
+            freelancer_profile.visits += 1
+            recrutier.scanned_counts += 1
+            recrutier.save()
+            freelancer_profile.save()
 
         return redirect(reverse("profile", kwargs={"pk" : pk}))
 
@@ -134,7 +140,7 @@ def detailed_dashboard(request, pk):
 # TODO
 def upload_freelancers(request):
     # Take csv file From Zidan [name, email, phone_number, location, track, job_interest, cv_link]
-    # Insert in Database using create of Freelancer Class
+    # Insert in Database using create of Attendee Class
     # then generate csv file [name, email, phone, qr_code]
     # qr_code function that takes host_name and freelancer_obj to build dynamic link, is written for you, it generates buffer to use and create image then embeded it in xlsx
     if request.method == 'POST' and 'file' in request.FILES:
@@ -144,35 +150,37 @@ def upload_freelancers(request):
         sheet = wb.active
         host_name = get_hostname(request)
         
-        # 2. Extract data and insert into the Freelancer table
+        # 2. Extract data and insert into the Attendee table
         headers = [cell.value for cell in sheet[1]]  # Read headers from the first row
         data_rows = sheet.iter_rows(min_row=2, values_only=True)  # Read data rows
         
         for row in data_rows:
             row_data = dict(zip(headers, row))
-            # Map Excel columns to Freelancer fields
-            freelancer = Freelancer(
-                name=row_data.get("name"),
-                email=row_data.get("email"),
-                phone_number=row_data.get("phone_number"),
-                location=row_data.get("location"),
-                track=row_data.get("track"),
-                job_interest=row_data.get("job_interest"),
-                cv_url=row_data.get("cv_link"),
-            )
-            freelancer.save()
+            # Map Excel columns to Attendee fields
+            try:
+                freelancer = Attendee(
+                    name=row_data.get("name"),
+                    email=row_data.get("email"),
+                    phone_number=row_data.get("phone_number"),
+                    track=row_data.get("track"),
+                    job_interest=row_data.get("job_interest"),
+                    cv_url=row_data.get("cv_link"),
+                )
+                freelancer.save()
+            except:
+                pass
 
         # 3. Generate a new Excel file with QR codes
         new_wb = openpyxl.Workbook()
         new_sheet = new_wb.active
-        new_sheet.title = "Freelancers with QR Codes"
+        new_sheet.title = "Attendees with QR Codes"
 
         # Add headers to the new sheet
         headers = ["Name", "Email", "Phone Number", "QR Code"]
         new_sheet.append(headers)
 
         # Fetch all freelancers and generate QR codes
-        freelancers = Freelancer.objects.all()
+        freelancers = Attendee.objects.all()
         for freelancer in freelancers:
             # Call the qr_generator function (assume it returns a BytesIO object)
             qr_buffer = qr_generator(host_name, freelancer)
@@ -220,13 +228,13 @@ def upload_recrutiers(request):
         sheet = wb.active
         codes = []
         
-        # 2. Extract data and insert into the Freelancer table
+        # 2. Extract data and insert into the Attendee table
         headers = [cell.value for cell in sheet[1]]  # Read headers from the first row
         data_rows = sheet.iter_rows(min_row=2, values_only=True)  # Read data rows
         
         for row in data_rows:
             row_data = dict(zip(headers, row))
-            # Map Excel columns to Freelancer fields
+            # Map Excel columns to Attendee fields
             recrutier = Recrutier(
                 name=row_data.get("name"),
                 email=row_data.get("email"),
@@ -266,3 +274,36 @@ def upload_recrutiers(request):
         return response
     elif request.method == "GET":
         return render(request, "upload_freelancers.html")
+    
+def download_leads(request):
+    if request.user.is_authenticated:
+        recrutiers = Recrutier.objects.all()
+        new_wb = openpyxl.Workbook()
+        for recrutier in recrutiers:
+            scan_logs = recrutier.scanned_logs.all()
+            new_sheet = new_wb.create_sheet(f"{recrutier.name}")
+            headers = ["Name", "Email", "Phone", "ALX Track", "Visits" ]
+            new_sheet.append(headers)
+
+            for scan_log in scan_logs:
+                attendee = scan_log.attendee
+                new_sheet.append([
+                    attendee.name,
+                    attendee.email,
+                    attendee.phone_number,
+                    attendee.track,
+                    attendee.visits,
+                ])
+
+        # 4. Return the new Excel file as a response
+        new_wb.remove("Sheet")
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = 'attachment; filename="Leads.xlsx"'
+        
+        output = BytesIO()
+        new_wb.save(output)
+        output.seek(0)
+        response.write(output.getvalue())
+        
+        return response
+    return redirect(reverse("home"))

@@ -13,11 +13,11 @@
           <tbody>
             {% for data in page_obj.object_list %}
                 <tr>
-                    <th>{{ data.freelancer.name }}</th>
-                    <td>{{ data.freelancer.email }}</td>
+                    <th>{{ data.attendee.name }}</th>
+                    <td>{{ data.attendee.email }}</td>
                     <td>{{ data.comment }}</td>
                     <td>
-                        <a href="{% url 'profile'  data.freelancer.pk  %}">
+                        <a href="{% url 'profile'  data.attendee.pk  %}">
                             <button class="btn btn-primary">Profile</button>
                         </a>
                     </td>

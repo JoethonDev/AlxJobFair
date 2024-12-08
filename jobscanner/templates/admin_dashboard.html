@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 
+{% block style %}
+<style>
+    a{
+        margin-bottom: 20px;
+        align-self: self-end;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+    
+    <a href="{% url 'download_leads' %}"><button class="btn btn-primary">Download Leads</button></a>
     <table class="table table-striped rounded">
         <thead>
             <tr>

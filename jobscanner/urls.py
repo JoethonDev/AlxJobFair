@@ -11,4 +11,5 @@ urlpatterns = [
     path("dashboard/<int:pk>", detailed_dashboard, name="detailed_dashboard"),
     path("upload/freelancer/", upload_freelancers, name="upload_freelancer"),
     path("upload/recrutier/", upload_recrutiers, name="upload_recrutier"),
+    path("download-leads/", download_leads, name="download_leads")
 ]
