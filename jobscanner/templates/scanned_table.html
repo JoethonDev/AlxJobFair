@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block style %}
+<style>
+    a{
+        margin-bottom: 20px;
+        align-self: self-end;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <a href="{% url 'download_attendees' %}"><button class="btn btn-primary">Download Scanned Attendee</button></a>
     <table class="table table-striped rounded">
