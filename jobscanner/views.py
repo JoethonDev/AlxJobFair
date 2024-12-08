@@ -296,7 +296,8 @@ def download_leads(request):
                 ])
 
         # 4. Return the new Excel file as a response
-        new_wb.remove("Sheet")
+        
+        new_wb.remove(new_wb["Sheet"])
         response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         response['Content-Disposition'] = 'attachment; filename="Leads.xlsx"'
         
