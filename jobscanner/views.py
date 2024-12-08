@@ -282,7 +282,7 @@ def download_leads(request):
         for recrutier in recrutiers:
             scan_logs = recrutier.scanned_logs.all()
             new_sheet = new_wb.create_sheet(f"{recrutier.name}")
-            headers = ["Name", "Email", "Phone", "ALX Track", "Visits" ]
+            headers = ["Name", "Email", "Phone", "ALX Track", "Comment"]
             new_sheet.append(headers)
 
             for scan_log in scan_logs:
@@ -292,7 +292,7 @@ def download_leads(request):
                     attendee.email,
                     attendee.phone_number,
                     attendee.track,
-                    attendee.visits,
+                    scan_log.comment,
                 ])
 
         # 4. Return the new Excel file as a response
@@ -300,6 +300,37 @@ def download_leads(request):
         new_wb.remove(new_wb["Sheet"])
         response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         response['Content-Disposition'] = 'attachment; filename="Leads.xlsx"'
+        
+        output = BytesIO()
+        new_wb.save(output)
+        output.seek(0)
+        response.write(output.getvalue())
+        
+        return response
+    return redirect(reverse("home"))
+
+def download_attendees(request):
+    if "is_authenticated" in request.session:
+        new_wb = openpyxl.Workbook()
+        recrutier = Recrutier.objects.get(pk=request['recrutier_pk'])
+        scan_logs = recrutier.scanned_logs.all()
+        new_sheet = new_wb.active
+        headers = ["Name", "Email", "Phone", "ALX Track", "Comment"]
+        new_sheet.append(headers)
+
+        for scan_log in scan_logs:
+            attendee = scan_log.attendee
+            new_sheet.append([
+                attendee.name,
+                attendee.email,
+                attendee.phone_number,
+                attendee.track,
+                scan_log.comment,
+            ])
+
+        # 4. Return the new Excel file as a response
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = 'attachment; filename="Attendees.xlsx"'
         
         output = BytesIO()
         new_wb.save(output)
