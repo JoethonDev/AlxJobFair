@@ -20,7 +20,7 @@ class Attendee(models.Model):
     visits = models.IntegerField(default=0)
 
     def __str__(self) :
-        return f"{self.email} graduated from {self.track} looks for {self.job_interest}"
+        return f"{self.email} graduated from {self.track} "
     
 class Recrutier(models.Model):
     # email = models.CharField(max_length=255)
