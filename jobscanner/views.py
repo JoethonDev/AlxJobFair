@@ -174,6 +174,7 @@ def upload_freelancers(request):
                     name=row_data.get("name"),
                     email=row_data.get("email"),
                     phone_number=row_data.get("phone_number"),
+                    linkedin=row_data.get("linkedin"),
                     track=row_data.get("track"),
                     location=row_data.get("location") or "",
                     age=row_data.get("age") or 1,
@@ -223,10 +224,9 @@ def upload_recrutiers(request):
             row_data = dict(zip(headers, row))
             # Map Excel columns to Attendee fields
             recrutier = Recrutier(
-                name=row_data.get("name"),
-                email=row_data.get("email"),
-                members=row_data.get("members"),
-                days=row_data.get("days"),
+                name=row_data.get("company_name"),
+                rep_name=row_data.get("representive_name"),
+                job_title=row_data.get("job_title"),
             )
             recrutier.save()
 
@@ -236,7 +236,7 @@ def upload_recrutiers(request):
         new_sheet.title = "Recrutiers with Login Codes"
 
         # Add headers to the new sheet
-        headers = ["Name", "Email", "Login Code"]
+        headers = ["Company Name", "Login Code"]
         new_sheet.append(headers)
 
         # Fetch all freelancers and generate QR codes
@@ -246,7 +246,7 @@ def upload_recrutiers(request):
             generated_login_code = get_login_code(codes)
             codes.append(generated_login_code)
             # Write freelancer data into the new sheet
-            new_row = [recrutier.name, recrutier.email, generated_login_code]
+            new_row = [recrutier.name, generated_login_code]
             new_sheet.append(new_row)
 
         # 4. Return the new Excel file as a response

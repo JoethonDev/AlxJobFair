@@ -12,6 +12,7 @@ class Attendee(models.Model):
     phone_number = models.CharField(max_length=20)
     name = models.CharField(max_length=255)
     location = models.TextField()
+    linkedin = models.TextField()
     age = models.PositiveBigIntegerField()
     track = models.CharField(max_length=255)
     job_interest = models.CharField(max_length=255)
@@ -22,10 +23,12 @@ class Attendee(models.Model):
         return f"{self.email} graduated from {self.track} looks for {self.job_interest}"
     
 class Recrutier(models.Model):
-    email = models.CharField(max_length=255)
+    # email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    days = models.IntegerField()
-    members = models.IntegerField()
+    rep_name = models.CharField(max_length=255)
+    job_title = models.CharField(max_length=255)
+    # days = models.IntegerField()
+    # members = models.IntegerField()
     code = models.IntegerField(unique=True)
     scanned_counts = models.IntegerField(default=0)
     

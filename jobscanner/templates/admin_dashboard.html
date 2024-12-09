@@ -16,7 +16,7 @@
         <thead>
             <tr>
               <th scope="col">Name</th>
-              <th scope="col">Email</th>
+              <th scope="col">Job Title</th>
               <th scope="col">Scans</th>
               <th scope="col">Details</th>
             </tr>
@@ -25,7 +25,7 @@
             {% for data in page_obj.object_list %}
                 <tr>
                     <th>{{ data.name }}</th>
-                    <td>{{ data.email }}</td>
+                    <td>{{ data.job_title }}</td>
                     <td>{{ data.scanned_counts }}</td>
                     <td>
                         <a href="{% url 'detailed_dashboard'  data.pk  %}">
