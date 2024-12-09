@@ -29,15 +29,15 @@
             <strong>Email:</strong> <span id="email">{{ profile.email }}</span>
         </div>
         <div class="mb-3">
-            <strong>Job Interest:</strong> <span id="job_interest">{{ profile.job_interest }}</span>
-        </div>
-        <div class="mb-3">
             <strong>ALX Track:</strong> <span id="graduated_from">{{ profile.track }}</span>
         </div>
         <div class="mb-3">
             <strong>Phone Number:</strong> <span id="phone_number">{{ profile.phone_number }}</span>
         </div>
-        <a href="{{ profile.cv_url }}" class="btn btn-primary w-100">View CV</a>
+        <a href="{{ profile.cv_url }}" class="btn btn-primary w-100 mb-2">View CV</a>
+        <a href="{{ scanlog.attendee.linkedin }}">
+            <button class="btn btn-primary w-100">Linkedin</button>
+        </a>
     </div>
 
     <form method="post" class="mt-2 mx-auto" action="{% url 'comment' profile.pk %}">

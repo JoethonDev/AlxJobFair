@@ -178,7 +178,6 @@ def upload_freelancers(request):
                     track=row_data.get("track"),
                     location=row_data.get("location") or "",
                     age=row_data.get("age") or 1,
-                    job_interest=row_data.get("job_interest"),
                     cv_url=row_data.get("cv_link"),
                 )
                 freelancer.save()

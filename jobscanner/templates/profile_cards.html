@@ -34,8 +34,10 @@
                     <p class="card-text">
                         <strong>Email:</strong> {{ scanlog.attendee.email }}<br>
                         <strong>ALX Track:</strong> {{ scanlog.attendee.track }}<br>
-                        <strong>Job Interest:</strong> {{ scanlog.attendee.job_interest }}<br>
-                        <strong>Comment:</strong> {{ scanlog.comment }}
+                        <strong>Comment:</strong> {{ scanlog.comment }} <br>
+                        <a href="{{ scanlog.attendee.linkedin }}">
+                            <button class="btn btn-primary">Linkedin</button>
+                        </a>
                     </p>
                 </div>
             </div>

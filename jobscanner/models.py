@@ -15,7 +15,7 @@ class Attendee(models.Model):
     linkedin = models.TextField()
     age = models.PositiveBigIntegerField()
     track = models.CharField(max_length=255)
-    job_interest = models.CharField(max_length=255)
+    # job_interest = models.CharField(max_length=255)
     cv_url = models.TextField()
     visits = models.IntegerField(default=0)
 
