@@ -26,7 +26,7 @@ class Recrutier(models.Model):
     # email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     rep_name = models.CharField(max_length=255)
-    job_title = models.CharField(max_length=255)
+    job_title  = models.CharField(max_length=255)
     # days = models.IntegerField()
     # members = models.IntegerField()
     code = models.IntegerField(unique=True)
