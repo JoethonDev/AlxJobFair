@@ -5,10 +5,10 @@ from django.http import HttpResponse
 from jobscanner.models import Recrutier, Attendee, ScanLog
 
 from io import BytesIO
+import zipfile
 import qrcode
+from PIL import Image as PILImage
 import openpyxl
-from openpyxl.drawing.image import Image
-from openpyxl.styles import Alignment
 import random
 
 # Create your views here.
@@ -19,14 +19,26 @@ def get_hostname(request):
     return f"{request.scheme}://{request.get_host()}"
 
 
-def qr_generator(host_name: str, freelancer: Attendee):
-    url = f"{host_name}/profile/{freelancer.pk}"
-    qr = qrcode.make(url)
-    buffer = BytesIO()
-    qr.save(buffer, format='PNG')
-    buffer.seek(0)
+# def qr_generator(host_name: str, freelancer: Attendee):
+#     url = f"{host_name}/profile/{freelancer.pk}"
+#     qr = qrcode.make(url)
+#     buffer = BytesIO()
+#     qr.save(buffer, format='PNG')
+#     buffer.seek(0)
 
-    return buffer
+#     return buffer
+
+
+def qr_generator_svg(host_name: str, attendee: Attendee):
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L)
+    qr.add_data(f"{host_name}/profile/{attendee.pk}")
+    qr.make(fit=True)
+    qr_image = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    # Save the image to a buffer with 300 DPI
+    img_buffer = BytesIO()
+    qr_image.save(img_buffer, format="PNG", dpi=(300, 300))
+    img_buffer.seek(0)
+    return img_buffer
 
 def get_login_code(code_list):
     code = random.randint(10000, 50000)
@@ -163,6 +175,8 @@ def upload_freelancers(request):
                     email=row_data.get("email"),
                     phone_number=row_data.get("phone_number"),
                     track=row_data.get("track"),
+                    location=row_data.get("location") or "",
+                    age=row_data.get("age") or 1,
                     job_interest=row_data.get("job_interest"),
                     cv_url=row_data.get("cv_link"),
                 )
@@ -170,52 +184,25 @@ def upload_freelancers(request):
             except:
                 pass
 
-        # 3. Generate a new Excel file with QR codes
-        new_wb = openpyxl.Workbook()
-        new_sheet = new_wb.active
-        new_sheet.title = "Attendees with QR Codes"
+        # Create an in-memory ZIP file
+        zip_buffer = BytesIO()
+        attendees = Attendee.objects.all()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for attendee in attendees:
+                # Generate the QR code (assuming qr_generator returns a BytesIO object)
+                qr_buffer = qr_generator_svg(host_name, attendee)
 
-        # Add headers to the new sheet
-        headers = ["Name", "Email", "Phone Number", "QR Code"]
-        new_sheet.append(headers)
+                # Name the image file with the attendee's name and email
+                file_name = f"{attendee.email}.png"
 
-        # Fetch all freelancers and generate QR codes
-        freelancers = Attendee.objects.all()
-        for freelancer in freelancers:
-            # Call the qr_generator function (assume it returns a BytesIO object)
-            qr_buffer = qr_generator(host_name, freelancer)
-            
-            # Write freelancer data into the new sheet
-            new_row = [freelancer.name, freelancer.email, freelancer.phone_number]
-            new_sheet.append(new_row)
-            
-            # Insert the QR code image into the fourth column
-            qr_image = Image(qr_buffer)
-            qr_image.width, qr_image.height = 100, 100
-            row_number = new_sheet.max_row  # Get the current row number
-            cell_address = f"D{row_number}"  # QR code will be in column D
-            new_sheet.row_dimensions[row_number].height = 75
-            new_sheet.add_image(qr_image, cell_address)
-        
-        # Format cells (resize and center align)
-        for col in new_sheet.columns:
-            max_length = 0
-            col_letter = col[0].column_letter  # Get the column letter
-            for cell in col:
-                if cell.value:
-                    max_length = max(max_length, len(str(cell.value)))
-                cell.alignment = Alignment(horizontal="center", vertical="center")
-            new_sheet.column_dimensions[col_letter].width = max_length + 5  # Add padding
+                # Add the image to the ZIP file
+                zip_file.writestr(file_name, qr_buffer.getvalue())
 
-        # 4. Return the new Excel file as a response
-        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        response['Content-Disposition'] = 'attachment; filename="freelancers_with_qrcodes.xlsx"'
-        
-        output = BytesIO()
-        new_wb.save(output)
-        output.seek(0)
-        response.write(output.getvalue())
-        
+        # Prepare the ZIP file for download
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer, content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="attendee_qrcodes.zip"'
+
         return response
     elif request.method == "GET":
         return render(request, "upload_freelancers.html")
