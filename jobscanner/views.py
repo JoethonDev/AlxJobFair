@@ -222,10 +222,13 @@ def upload_recrutiers(request):
         for row in data_rows:
             row_data = dict(zip(headers, row))
             # Map Excel columns to Attendee fields
+            generated_login_code = get_login_code(codes)
+            codes.append(generated_login_code)
             recrutier = Recrutier(
                 name=row_data.get("company_name"),
                 rep_name=row_data.get("representive_name"),
                 job_title=row_data.get("job_title"),
+                code=generated_login_code
             )
             recrutier.save()
 
@@ -242,10 +245,9 @@ def upload_recrutiers(request):
         recrutiers = Recrutier.objects.all()
         for recrutier in recrutiers:
             # Call the qr_generator function (assume it returns a BytesIO object)
-            generated_login_code = get_login_code(codes)
-            codes.append(generated_login_code)
+            
             # Write freelancer data into the new sheet
-            new_row = [recrutier.name, generated_login_code]
+            new_row = [recrutier.name, recrutier.code]
             new_sheet.append(new_row)
 
         # 4. Return the new Excel file as a response
