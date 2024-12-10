@@ -221,16 +221,20 @@ def upload_recrutiers(request):
         
         for row in data_rows:
             row_data = dict(zip(headers, row))
-            # Map Excel columns to Attendee fields
-            generated_login_code = get_login_code(codes)
-            codes.append(generated_login_code)
-            recrutier = Recrutier(
-                name=row_data.get("company_name"),
-                rep_name=row_data.get("representive_name"),
-                job_title=row_data.get("job_title"),
-                code=generated_login_code
-            )
-            recrutier.save()
+            recrutier = Recrutier.objects.filter(name=row_data.get("company_name"))
+            if not recrutier:
+                # Map Excel columns to Attendee fields
+                generated_login_code = get_login_code(codes)
+                codes.append(generated_login_code)
+                recrutier = Recrutier(
+                    name=row_data.get("company_name"),
+                    rep_name=row_data.get("representive_name"),
+                    job_title=row_data.get("job_title"),
+                    code=generated_login_code
+                )
+                recrutier.save()
+
+
 
         # 3. Generate a new Excel file with QR codes
         new_wb = openpyxl.Workbook()
