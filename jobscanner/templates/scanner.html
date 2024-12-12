@@ -59,6 +59,12 @@
                     <label for="comment" class="form-label">Comment</label>
                     <textarea class="form-control" name="comment" id="comment" rows="3" placeholder="Leave a comment..."></textarea>
                 </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                    <label class="form-check-label" for="flexCheckChecked">
+                      View Profile
+                    </label>
+                </div>
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </form>
         </div>
@@ -100,7 +106,8 @@
         });
 
         // Close button functionality
-        document.getElementById('closePopup').addEventListener('click', () => {
+        const closePopup = document.getElementById('closePopup')
+        closePopup.addEventListener('click', () => {
             const popupOverlay = document.getElementById('popupOverlay');
             popupOverlay.style.display = 'none'; // Hide the overlay
         });
@@ -108,9 +115,10 @@
         // Redirection
         document.getElementsByTagName("form")[0].addEventListener("submit", async (e) => {
             e.preventDefault()
+            let viewProfile = document.getElementById("flexCheckChecked").checked;
             let redirect_link = document.getElementById('scanned-result').textContent
             let comment = document.getElementById("comment").value
-            if (!comment){
+            if (comment.length < 7){
                 return
             }
             const formData = new URLSearchParams();
@@ -124,7 +132,12 @@
                 },
                 body: formData.toString()
             })
-            window.location.href = document.getElementById('scanned-result').textContent
+            if (viewProfile){
+                window.location.href = document.getElementById('scanned-result').textContent
+            }
+            else {
+                closePopup.click()
+            }
             return false
         })
     </script>
