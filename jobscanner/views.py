@@ -346,3 +346,30 @@ def qr_code_download(request, pk):
     response = HttpResponse(qr_buffer, content_type="image/png")
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
+
+
+def download_unvisited(request):
+    if request.user.is_authenticated:
+        unvisited_attendee = Attendee.objects.filter(visits=0)
+        new_wb = openpyxl.Workbook()
+        new_sheet = new_wb.active
+        new_sheet.title = "Recrutiers with Login Codes"
+
+        # Add headers to the new sheet
+        headers = ["Email", "Name"]
+        new_sheet.append(headers)
+        for attendee in unvisited_attendee:
+            # Write freelancer data into the new sheet
+            new_row = [attendee.email, attendee.name]
+            new_sheet.append(new_row)
+
+        # 4. Return the new Excel file as a response
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = 'attachment; filename="Unvisited_Attendees.xlsx"'
+        
+        output = BytesIO()
+        new_wb.save(output)
+        output.seek(0)
+        response.write(output.getvalue())
+        
+        return response
