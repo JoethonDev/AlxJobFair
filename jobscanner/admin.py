@@ -38,7 +38,25 @@ class AttendeModel(admin.ModelAdmin):
     qr_code.short_description = 'QR Code'
     readonly_fields = ['profile_link', 'qr_code']
 
+
+class RecrutierModel(admin.ModelAdmin):
+    list_display = ('name', 'scanned_counts')
+
+    def get_ordering(self, request):
+        return ['-scanned_counts']
+    
+
+class ScanLogModel(admin.ModelAdmin):
+    list_display = ('company', 'attendee', 'comment')
+    
+    def company(self, obj):
+        return obj.recrutier.name
+
+    def attendee(self, obj):
+        return obj.attendee.name
+
+
 # Register your models here.
 admin.site.register(Attendee, AttendeModel)
-admin.site.register(Recrutier)
-admin.site.register(ScanLog)
+admin.site.register(Recrutier, RecrutierModel)
+admin.site.register(ScanLog, ScanLogModel)
