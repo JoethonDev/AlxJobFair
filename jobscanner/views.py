@@ -307,7 +307,7 @@ def download_attendees(request):
         recrutier = Recrutier.objects.get(pk=request.session['recrutier_pk'])
         scan_logs = recrutier.scanned_logs.all()
         new_sheet = new_wb.active
-        headers = ["Name", "Email", "Phone", "ALX Track", "Comment"]
+        headers = ["Name", "Email", "Age", "Phone",  "Comment", "Location", "Linkedin",  "CV Link" , "ALX Track"]
         new_sheet.append(headers)
 
         for scan_log in scan_logs:
@@ -315,9 +315,13 @@ def download_attendees(request):
             new_sheet.append([
                 attendee.name,
                 attendee.email,
+                attendee.age,
                 attendee.phone_number,
-                attendee.track,
                 scan_log.comment,
+                attendee.location,
+                attendee.linkedin,
+                attendee.cv_url,
+                attendee.track,
             ])
 
         # 4. Return the new Excel file as a response
