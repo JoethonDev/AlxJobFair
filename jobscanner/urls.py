@@ -13,4 +13,5 @@ urlpatterns = [
     path("upload/recrutier/", upload_recrutiers, name="upload_recrutier"),
     path("download-leads/", download_leads, name="download_leads"),
     path("download-attendees/", download_attendees, name="download_attendees"),
+    path("admin/download/<uuid:pk>", qr_code_download, name="qr_code"),
 ]

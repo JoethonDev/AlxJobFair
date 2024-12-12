@@ -331,3 +331,14 @@ def download_attendees(request):
         
         return response
     return redirect(reverse("home"))
+
+def qr_code_download(request, pk):
+    attendee = Attendee.objects.get(pk=pk)
+    host_name = get_hostname(request)
+    qr_buffer = qr_generator_svg(host_name, attendee)
+    # Name the image file with the attendee's name and email
+    file_name = f"{attendee.email}.png"
+    qr_buffer.seek(0)
+    response = HttpResponse(qr_buffer, content_type="image/png")
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    return response
