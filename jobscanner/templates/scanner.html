@@ -107,15 +107,17 @@
 
         // Close button functionality
         const closePopup = document.getElementById('closePopup')
+        const checkBox = document.getElementById("flexCheckChecked")
         closePopup.addEventListener('click', () => {
             const popupOverlay = document.getElementById('popupOverlay');
             popupOverlay.style.display = 'none'; // Hide the overlay
+            checkBox.checked = true
         });
 
         // Redirection
         document.getElementsByTagName("form")[0].addEventListener("submit", async (e) => {
             e.preventDefault()
-            let viewProfile = document.getElementById("flexCheckChecked").checked;
+            let viewProfile = checkBox.checked;
             let redirect_link = document.getElementById('scanned-result').textContent
             let comment = document.getElementById("comment").value
             if (comment.length < 7){
