@@ -18,20 +18,7 @@ class AttendeModel(admin.ModelAdmin):
         "location"
     ]
 
-    # fieldsets = (
-    #     (None, {
-    #         'fields': ('name', 'email', 'phone_number', 'track', 'cv_url'),
-    #     }),
-    # )
-
-    # def get_list_display(self, request):
-    #     # Dynamically include all model fields
-    #     model_fields = [
-    #         field.name for field in Attendee._meta.get_fields()
-    #         if isinstance(field, Field)  # Only include non-relational fields
-    #     ]
-    #     # Add custom fields to the list display
-    #     return model_fields + ['profile_link', 'qr_code']
+    list_display = ["name", "email", "track", "phone_number", "visits"]
 
     def profile_link(self, obj):
         # Generate a clickable link to the attendee's profile
@@ -42,7 +29,6 @@ class AttendeModel(admin.ModelAdmin):
 
     def qr_code(self, obj):
         # Generate the QR code dynamically
-
         # Create a downloadable QR code link
         download_link = reverse("qr_code", kwargs={"pk": obj.pk})  # Custom admin URL for downloading
         return format_html(
@@ -50,20 +36,7 @@ class AttendeModel(admin.ModelAdmin):
         )
     
     qr_code.short_description = 'QR Code'
-
-    # def get_list_display(self, request):
-    #     # Dynamically include all model fields
-    #     model_fields = [field.name for field in Attendee._meta.get_fields()]
-    #     # Add custom fields to the list display
-    #     return model_fields + ['profile_link', 'qr_code']
-
     readonly_fields = ['profile_link', 'qr_code']
-    # def get_readonly_fields(self, request, obj=None):
-    #     # Add dynamic fields to readonly_fields
-    #     readonly_fields = super().get_readonly_fields(request, obj)
-    #     if obj:
-    #         readonly_fields += ('profile_link', 'qr_code')
-    #     return readonly_fields
 
 # Register your models here.
 admin.site.register(Attendee, AttendeModel)

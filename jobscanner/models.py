@@ -39,3 +39,6 @@ class ScanLog(models.Model):
     recrutier = models.ForeignKey(Recrutier, on_delete=models.CASCADE, related_name="scanned_logs")
     attendee = models.ForeignKey(Attendee, on_delete=models.CASCADE)
     comment = models.TextField()
+
+    def __str__(self):
+        return f"{self.recrutier.name} scanned {self.attendee.name}"
